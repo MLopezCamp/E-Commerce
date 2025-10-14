@@ -10,7 +10,14 @@ class ProductoController extends Controller
     // Respuesta en JSON
     public function index()
     {
-        return response()->json(Producto::with('categoria')->get(), 200);
+        $productos = Producto::where('estado', 'A')
+            ->whereHas('categoria', function ($query) {
+                $query->where('estado', 'A');
+            })
+            ->with('categoria:id,nombre,estado')
+            ->get();
+
+        return response()->json($productos, 200);
     }
 
     // CRUD 
@@ -47,4 +54,59 @@ class ProductoController extends Controller
         $producto->delete();
         return response()->json(['message' => 'Producto eliminado correctamente']);
     }
+
+    public function paginarPorCantidad(Request $request)
+    {
+        $cantidad = $request->query('cantidad', 5);
+
+        $productos = Producto::where('estado', 'A')
+            ->whereHas('categoria', function ($query) {
+                $query->where('estado', 'A');
+            })
+            ->with('categoria:id,nombre,estado')
+            ->paginate($cantidad);
+
+        return response()->json($productos, 200);
+    }
+
+    public function paginarPorCantidadYPagina(Request $request)
+    {
+        $cantidad = $request->query('cantidad', 5);
+        $pagina = $request->query('pagina', 1);
+
+        $productos = Producto::where('estado', 'A')
+            ->whereHas('categoria', function ($query) {
+                $query->where('estado', 'A');
+            })
+            ->with('categoria:id,nombre,estado')
+            ->paginate($cantidad, ['*'], 'page', $pagina);
+
+        return response()->json($productos, 200);
+    }
+
+    public function actualizarStock(Request $request, $id)
+    {
+        $producto = Producto::findOrFail($id);
+
+        $request->validate([
+            'cantidad' => 'required|integer|min:0'
+        ]);
+
+        $cantidad = $request->cantidad;
+
+        if ($cantidad < $producto->stock) {
+            $producto->stock -= $cantidad; // Resta
+        } else {
+            $producto->stock += $cantidad; // Suma
+        }
+
+        $producto->save();
+
+        return response()->json([
+            'message' => 'Stock actualizado correctamente',
+            'nuevo_stock' => $producto->stock
+        ], 200);
+    }
+
+
 }
