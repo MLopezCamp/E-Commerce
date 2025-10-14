@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('carritos', function (Blueprint $table) {
             $table->id();
+            $table->decimal('total', 10, 2)->default(0);
             $table->timestamps();
         });
     }
