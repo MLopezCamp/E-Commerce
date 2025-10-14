@@ -26,3 +26,9 @@ Route::get('/categorias/{id}', [CategoriaController::class, 'show']);
 Route::post('/categorias', [CategoriaController::class, 'store']);
 Route::put('/categorias/{id}', [CategoriaController::class, 'update']);
 Route::delete('/categorias/{id}', [CategoriaController::class, 'destroy']);
+
+//Paginacion
+Route::get('/productos/paginacion', [ProductoController::class, 'paginarPorCantidad']);
+Route::get('/productos/paginacion-avanzada', [ProductoController::class, 'paginarPorCantidadYPagina']);
+ //Actualizar segun cantidad ingresada
+ Route::put('/productos/{id}/actualizar-stock', [ProductoController::class, 'actualizarStock']);

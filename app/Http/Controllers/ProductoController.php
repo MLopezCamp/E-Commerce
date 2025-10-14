@@ -47,4 +47,47 @@ class ProductoController extends Controller
         $producto->delete();
         return response()->json(['message' => 'Producto eliminado correctamente']);
     }
+
+    public function paginarPorCantidad(Request $request)
+    {
+        $cantidad = $request->query('cantidad', 5); // valor por defecto = 5
+        $productos = \app\Models\Producto::paginate($cantidad);
+        return response()->json($productos, 200);
+    }
+
+    public function paginarPorCantidadYPagina(Request $request)
+    {
+        $cantidad = $request->query('cantidad', 5);
+        $pagina = $request->query('pagina', 1);
+
+        $productos = \app\Models\Producto::paginate($cantidad, ['*'], 'page', $pagina);
+
+        return response()->json($productos, 200);
+    }
+
+    public function actualizarStock(Request $request, $id)
+    {
+        $producto = \app\Models\Producto::findOrFail($id);
+
+        $request->validate([
+            'cantidad' => 'required|integer|min:0'
+        ]);
+
+        $cantidad = $request->cantidad;
+
+        if ($cantidad < $producto->stock) {
+            $producto->stock -= $cantidad; // Resta
+        } else {
+            $producto->stock += $cantidad; // Suma
+        }
+
+        $producto->save();
+
+        return response()->json([
+            'message' => 'Stock actualizado correctamente',
+            'nuevo_stock' => $producto->stock
+        ], 200);
+    }
+
+
 }
