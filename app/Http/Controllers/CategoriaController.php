@@ -7,59 +7,43 @@ use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Listar categorías 
     public function index()
     {
-        //
+        return response()->json(Categoria::all(), 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Crear nueva categoría
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nombre' => 'required|string|max:100',
+            'estado' => 'required|in:A,I',
+        ]);
+
+        $categoria = Categoria::create($request->all());
+        return response()->json($categoria, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Categoria $categoria)
+    // Mostrar categoría por ID
+    public function show($id)
     {
-        //
+        $categoria = Categoria::findOrFail($id);
+        return response()->json($categoria, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Categoria $categoria)
+    // Actualizar categoría
+    public function update(Request $request, $id)
     {
-        //
+        $categoria = Categoria::findOrFail($id);
+        $categoria->update($request->all());
+        return response()->json($categoria, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Categoria $categoria)
+    // Eliminar categoría
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Categoria $categoria)
-    {
-        //
+        Categoria::destroy($id);
+        return response()->json(['message' => 'Categoría eliminada'], 200);
     }
 }
