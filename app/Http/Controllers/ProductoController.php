@@ -10,7 +10,14 @@ class ProductoController extends Controller
     // Respuesta en JSON
     public function index()
     {
-        return response()->json(Producto::with('categoria')->get(), 200);
+        $productos = Producto::where('estado', 'A')
+            ->whereHas('categoria', function ($query) {
+                $query->where('estado', 'A');
+            })
+            ->with('categoria:id,nombre,estado')
+            ->get();
+
+        return response()->json($productos, 200);
     }
 
     // CRUD 
@@ -50,8 +57,15 @@ class ProductoController extends Controller
 
     public function paginarPorCantidad(Request $request)
     {
-        $cantidad = $request->query('cantidad', 5); // valor por defecto = 5
-        $productos = \app\Models\Producto::paginate($cantidad);
+        $cantidad = $request->query('cantidad', 5);
+
+        $productos = Producto::where('estado', 'A')
+            ->whereHas('categoria', function ($query) {
+                $query->where('estado', 'A');
+            })
+            ->with('categoria:id,nombre,estado')
+            ->paginate($cantidad);
+
         return response()->json($productos, 200);
     }
 
@@ -60,14 +74,19 @@ class ProductoController extends Controller
         $cantidad = $request->query('cantidad', 5);
         $pagina = $request->query('pagina', 1);
 
-        $productos = \app\Models\Producto::paginate($cantidad, ['*'], 'page', $pagina);
+        $productos = Producto::where('estado', 'A')
+            ->whereHas('categoria', function ($query) {
+                $query->where('estado', 'A');
+            })
+            ->with('categoria:id,nombre,estado')
+            ->paginate($cantidad, ['*'], 'page', $pagina);
 
         return response()->json($productos, 200);
     }
 
     public function actualizarStock(Request $request, $id)
     {
-        $producto = \app\Models\Producto::findOrFail($id);
+        $producto = Producto::findOrFail($id);
 
         $request->validate([
             'cantidad' => 'required|integer|min:0'
