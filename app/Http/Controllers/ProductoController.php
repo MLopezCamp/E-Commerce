@@ -7,59 +7,44 @@ use Illuminate\Http\Request;
 
 class ProductoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Respuesta en JSON
     public function index()
     {
-        //
+        return response()->json(Producto::with('categoria')->get(), 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // CRUD 
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nombre' => 'required|string',
+            'categoria_id' => 'required|exists:categorias,id',
+            'stock' => 'required|integer|min:0',
+            'precio' => 'required|numeric|min:0',
+            'estado' => 'required|in:A,I'
+        ]);
+
+        $producto = Producto::create($request->all());
+        return response()->json($producto, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Producto $producto)
+    public function show($id)
     {
-        //
+        $producto = Producto::with('categoria')->findOrFail($id);
+        return response()->json($producto);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Producto $producto)
+    public function update(Request $request, $id)
     {
-        //
+        $producto = Producto::findOrFail($id);
+        $producto->update($request->all());
+        return response()->json($producto);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Producto $producto)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Producto $producto)
-    {
-        //
+        $producto = Producto::findOrFail($id);
+        $producto->delete();
+        return response()->json(['message' => 'Producto eliminado correctamente']);
     }
 }
