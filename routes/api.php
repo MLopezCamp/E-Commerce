@@ -15,6 +15,8 @@ Route::get('/user/{id}', function (Request $request, string $id) {
 
 //PRODUCTOS
 
+Route::get('/productos/buscar', [ProductoController::class, 'buscar']);
+
 // Paginación
 Route::get('/productos/paginacion', [ProductoController::class, 'paginarPorCantidad']);
 Route::get('/productos/paginacion-avanzada', [ProductoController::class, 'paginarPorCantidadYPagina']);

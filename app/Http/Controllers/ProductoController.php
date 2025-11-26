@@ -108,5 +108,20 @@ class ProductoController extends Controller
         ], 200);
     }
 
+    public function buscar(Request $request)
+    {
+        $nombre = $request->query('nombre', '');
+
+        $productos = Producto::where('estado', 'A')
+            ->where('nombre', 'LIKE', "%$nombre%")
+            ->whereHas('categoria', function ($query) {
+                $query->where('estado', 'A');
+            })
+            ->with('categoria:id,nombre,estado')
+            ->get();
+
+        return response()->json($productos, 200);
+    }
+
 
 }
